@@ -42,6 +42,23 @@
     .lang-pill {
       transition: background 0.3s ease, color 0.3s ease;
     }
+    /* Contact modal animations */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #contact-overlay.is-open { animation: fadeIn 0.3s ease forwards; }
+    #contact-overlay.is-open #contact-panel { animation: modalIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+    /* Hide modal when not open */
+    #contact-overlay { display: none; }
+    #contact-overlay.is-open { display: flex; }
+    /* Custom scrollbar for modal */
+    #contact-panel::-webkit-scrollbar { width: 6px; }
+    #contact-panel::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.4); border-radius: 3px; }
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.7s linear infinite; }
   </style>
 </head>
 <body class="min-h-screen font-sans text-slate-200 antialiased">
@@ -53,16 +70,24 @@
         <img src="assets/logo.png" alt="Julio Mora Organization" class="h-9 w-auto">
         <span class="hidden sm:inline text-sm font-semibold tracking-wide text-slate-300 uppercase">Julio Mora Organization</span>
       </a>
-      <!-- Language Toggle -->
-      <div class="flex items-center gap-1 bg-slate-800/60 rounded-full p-1 border border-slate-600/30">
-        <button onclick="setLang('en')" id="btn-en"
-          class="lang-pill px-3 py-1 rounded-full text-xs font-semibold bg-sky-600 text-white">
-          EN
+      <div class="flex items-center gap-3">
+        <!-- Contact Button -->
+        <button onclick="openContact()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs sm:text-sm transition-colors shadow-lg shadow-sky-600/20">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span data-en="Contact" data-es="Contacto">Contact</span>
         </button>
-        <button onclick="setLang('es')" id="btn-es"
-          class="lang-pill px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white">
-          ES
-        </button>
+        <!-- Language Toggle -->
+        <div class="flex items-center gap-1 bg-slate-800/60 rounded-full p-1 border border-slate-600/30">
+          <button onclick="setLang('en')" id="btn-en"
+            class="lang-pill px-3 py-1 rounded-full text-xs font-semibold bg-sky-600 text-white">
+            EN
+          </button>
+          <button onclick="setLang('es')" id="btn-es"
+            class="lang-pill px-3 py-1 rounded-full text-xs font-semibold text-slate-400 hover:text-white">
+            ES
+          </button>
+        </div>
       </div>
     </div>
   </nav>
@@ -189,6 +214,142 @@
     </div><!-- /grid -->
   </section>
 
+  <!-- ===== CONTACT MODAL ===== -->
+  <div id="contact-overlay"
+       class="fixed inset-0 z-[60] items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md"
+       onclick="if(event.target===this) closeContact()">
+    <div id="contact-panel"
+         class="relative w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl border border-slate-600/40 bg-slate-900/95 shadow-2xl">
+      <!-- Top accent bar -->
+      <div class="h-1.5 w-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 rounded-t-2xl"></div>
+
+      <!-- Close button -->
+      <button onclick="closeContact()" aria-label="Close"
+        class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div class="p-7 sm:p-9">
+        <!-- Header -->
+        <div class="flex flex-col items-center text-center mb-7">
+          <img src="assets/logo.png" alt="Julio Mora Organization" class="h-14 w-auto mb-4">
+          <h3 class="text-2xl font-bold text-white mb-1"
+              data-en="Get in Touch" data-es="Contáctanos">Get in Touch</h3>
+          <p class="text-sm text-slate-400 max-w-sm"
+             data-en="Have a question or a project in mind? Send us a message and our team will respond shortly."
+             data-es="¿Tienes una pregunta o un proyecto en mente? Envíanos un mensaje y nuestro equipo responderá en breve.">
+            Have a question or a project in mind? Send us a message and our team will respond shortly.
+          </p>
+        </div>
+
+        <!-- Success message -->
+        <div id="contact-success" class="hidden flex-col items-center text-center py-10">
+          <div class="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mb-5">
+            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h4 class="text-xl font-bold text-white mb-2"
+              data-en="Message Sent!" data-es="¡Mensaje Enviado!">Message Sent!</h4>
+          <p class="text-sm text-slate-400 mb-6"
+             data-en="Thank you for reaching out. We'll get back to you as soon as possible."
+             data-es="Gracias por contactarnos. Te responderemos lo antes posible.">
+            Thank you for reaching out. We'll get back to you as soon as possible.
+          </p>
+          <button onclick="closeContact()"
+            class="px-6 py-2.5 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm transition-colors">
+            <span data-en="Close" data-es="Cerrar">Close</span>
+          </button>
+        </div>
+
+        <!-- Error message -->
+        <div id="contact-error" class="hidden mb-5 px-4 py-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm text-center"
+             data-en="Something went wrong. Please try again or email us directly."
+             data-es="Algo salió mal. Por favor intenta de nuevo o escríbenos directamente.">
+          Something went wrong. Please try again or email us directly.
+        </div>
+
+        <!-- Form -->
+        <form id="contact-form" class="space-y-4">
+          <!-- Web3Forms hidden fields -->
+          <input type="hidden" name="access_key" value="4921cb90-c549-480f-b16e-7b9a0de563d3">
+          <input type="hidden" name="subject" id="hidden-subject" value="New Contact — Julio Mora Organization">
+          <input type="hidden" name="from_name" value="Julio Mora Organization Website">
+          <!-- Honeypot anti-spam -->
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off">
+
+          <!-- Full Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5"
+                   data-en="Full Name *" data-es="Nombre Completo *">Full Name *</label>
+            <input type="text" name="name" required
+              class="w-full px-4 py-2.5 rounded-lg bg-slate-800/70 border border-slate-600/50 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+              data-en-ph="John Doe" data-es-ph="Juan Pérez" placeholder="John Doe">
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5"
+                   data-en="Email *" data-es="Correo Electrónico *">Email *</label>
+            <input type="email" name="email" required
+              class="w-full px-4 py-2.5 rounded-lg bg-slate-800/70 border border-slate-600/50 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+              placeholder="you@example.com">
+          </div>
+
+          <!-- Subject -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5"
+                   data-en="Subject *" data-es="Asunto *">Subject *</label>
+            <input type="text" name="user_subject" required oninput="syncSubject(this.value)"
+              class="w-full px-4 py-2.5 rounded-lg bg-slate-800/70 border border-slate-600/50 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+              data-en-ph="How can we help?" data-es-ph="¿Cómo podemos ayudarte?" placeholder="How can we help?">
+          </div>
+
+          <!-- Company (optional) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5"
+                   data-en="Company (optional)" data-es="Empresa (opcional)">Company (optional)</label>
+            <input type="text" name="company"
+              class="w-full px-4 py-2.5 rounded-lg bg-slate-800/70 border border-slate-600/50 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+              data-en-ph="Your company" data-es-ph="Tu empresa" placeholder="Your company">
+          </div>
+
+          <!-- Business Unit -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5"
+                   data-en="Business Unit *" data-es="Unidad de Negocio *">Business Unit *</label>
+            <select name="business_unit" required
+              class="w-full px-4 py-2.5 rounded-lg bg-slate-800/70 border border-slate-600/50 text-white text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors appearance-none cursor-pointer">
+              <option value="General Inquiry" data-en="General Inquiry" data-es="Consulta General">General Inquiry</option>
+              <option value="Sailing Religion">Sailing Religion</option>
+              <option value="Faro Docente">Faro Docente</option>
+              <option value="RefriproFL LLC">RefriproFL LLC</option>
+            </select>
+          </div>
+
+          <!-- Message -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5"
+                   data-en="Message *" data-es="Mensaje *">Message *</label>
+            <textarea name="message" required rows="4"
+              class="w-full px-4 py-2.5 rounded-lg bg-slate-800/70 border border-slate-600/50 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors resize-none"
+              data-en-ph="Tell us more about your inquiry..." data-es-ph="Cuéntanos más sobre tu consulta..." placeholder="Tell us more about your inquiry..."></textarea>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" id="contact-submit"
+            class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm transition-colors shadow-lg shadow-sky-600/20 disabled:opacity-60 disabled:cursor-not-allowed">
+            <svg id="submit-spinner" class="spinner hidden w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            <span id="submit-label" data-en="Send Message" data-es="Enviar Mensaje">Send Message</span>
+          </button>
+
+          <p class="text-center text-xs text-slate-500 pt-1">
+            <span data-en="Or email us at" data-es="O escríbenos a">Or email us at</span>
+            <a href="mailto:juliocesarmora@juliomora.org" class="text-sky-400 hover:text-sky-300">juliocesarmora@juliomora.org</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== FOOTER ===== -->
   <footer class="border-t border-slate-700/40 bg-slate-900/50">
     <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
@@ -217,6 +378,11 @@
         el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
       });
 
+      // Update translatable placeholders
+      document.querySelectorAll('[data-en-ph]').forEach(el => {
+        el.setAttribute('placeholder', el.getAttribute('data-' + lang + '-ph') || el.getAttribute('data-en-ph'));
+      });
+
       // Update toggle pills
       const btnEn = document.getElementById('btn-en');
       const btnEs = document.getElementById('btn-es');
@@ -234,6 +400,78 @@
 
     // Apply saved language on load
     document.addEventListener('DOMContentLoaded', () => setLang(currentLang));
+
+    /* ===== CONTACT MODAL LOGIC ===== */
+    const overlay = document.getElementById('contact-overlay');
+    const form = document.getElementById('contact-form');
+    const successBox = document.getElementById('contact-success');
+    const errorBox = document.getElementById('contact-error');
+    const submitBtn = document.getElementById('contact-submit');
+    const spinner = document.getElementById('submit-spinner');
+
+    function openContact() {
+      // reset state
+      form.classList.remove('hidden');
+      successBox.classList.add('hidden');
+      successBox.classList.remove('flex');
+      errorBox.classList.add('hidden');
+      overlay.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeContact() {
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+      // small delay then reset form for next open
+      setTimeout(() => {
+        form.reset();
+        syncSubject('');
+      }, 250);
+    }
+
+    // Sync the user subject into the Web3Forms email subject line
+    function syncSubject(val) {
+      const hidden = document.getElementById('hidden-subject');
+      hidden.value = val && val.trim()
+        ? 'JMO Contact: ' + val.trim()
+        : 'New Contact — Julio Mora Organization';
+    }
+
+    // Close on ESC
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeContact();
+    });
+
+    // Handle form submission via Web3Forms
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errorBox.classList.add('hidden');
+      submitBtn.disabled = true;
+      spinner.classList.remove('hidden');
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          form.classList.add('hidden');
+          successBox.classList.remove('hidden');
+          successBox.classList.add('flex');
+        } else {
+          throw new Error(data.message || 'submission failed');
+        }
+      } catch (err) {
+        errorBox.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        spinner.classList.add('hidden');
+      }
+    });
   </script>
 
 </body>
